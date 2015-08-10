@@ -43,11 +43,27 @@ public:
 CMS3DFile::CMS3DFile()
 {
 	_i = new CMS3DFileI();
+	_overrideAmbient = false;
+	_overrideEmissive = false;
+	_overrideDiffuse = false;
+	_overrideSpecular = false;
+
+	_white = new float [4];
+	_black = new float [4];
+
+	for(int i=0;i<4;i++)
+		_white[i] = 1.0;
+	for(int i=0;i<3;i++)
+		_black[i] = 0.0;
+	_black[3] = 1.0;
+
 }
 
 CMS3DFile::~CMS3DFile()
 {
 	delete _i;
+	delete _white;
+	delete _black;
 }
 
 bool CMS3DFile::LoadFromFile(const char* lpszFileName)
@@ -309,10 +325,23 @@ void CMS3DFile::draw(){
 }
 
 void CMS3DFile::setMaterial(ms3d_material_t* material, int textureIndex){
-	glMaterialfv( GL_FRONT, GL_AMBIENT, material->ambient);
-	glMaterialfv( GL_FRONT, GL_DIFFUSE, material->diffuse );
-	glMaterialfv( GL_FRONT, GL_SPECULAR, material->specular );
-	glMaterialfv( GL_FRONT, GL_EMISSION, material->emissive );
+	if(_overrideAmbient)
+		glMaterialfv( GL_FRONT, GL_AMBIENT, _white);
+	else
+		glMaterialfv( GL_FRONT, GL_AMBIENT, material->ambient);
+	if(_overrideDiffuse)
+		glMaterialfv( GL_FRONT, GL_DIFFUSE, _white);
+	else
+		glMaterialfv( GL_FRONT, GL_DIFFUSE, material->diffuse );
+	if(_overrideSpecular)
+		glMaterialfv( GL_FRONT, GL_SPECULAR, _white );
+	else
+		glMaterialfv( GL_FRONT, GL_SPECULAR, material->specular );
+	if(_overrideEmissive)
+		glMaterialfv( GL_FRONT, GL_EMISSION, _black);
+	else
+		glMaterialfv( GL_FRONT, GL_EMISSION, material->emissive );
+
 	glMaterialf( GL_FRONT, GL_SHININESS, material->shininess );
 	if( _i->arrTextures[textureIndex] > 0){
 		glBindTexture( GL_TEXTURE_2D, _i->arrTextures[textureIndex]);
@@ -324,11 +353,23 @@ void CMS3DFile::setMaterial(ms3d_material_t* material, int textureIndex){
 //binds an opengl texture with the material information from a given group (usually to draw that same group)
 void CMS3DFile::setMaterial(int texture, ms3d_group_t* group){
 	ms3d_material_t* material = &(_i->arrMaterials[group->materialIndex]);	
+	if(_overrideAmbient)
+		glMaterialfv( GL_FRONT, GL_AMBIENT, _white);
+	else
+		glMaterialfv( GL_FRONT, GL_AMBIENT, material->ambient);
+	if(_overrideDiffuse)
+		glMaterialfv( GL_FRONT, GL_DIFFUSE, _white);
+	else
+		glMaterialfv( GL_FRONT, GL_DIFFUSE, material->diffuse );
+	if(_overrideSpecular)
+		glMaterialfv( GL_FRONT, GL_SPECULAR, _white );
+	else
+		glMaterialfv( GL_FRONT, GL_SPECULAR, material->specular );
+	if(_overrideEmissive)
+		glMaterialfv( GL_FRONT, GL_EMISSION, _black);
+	else
+		glMaterialfv( GL_FRONT, GL_EMISSION, material->emissive );
 
-	glMaterialfv( GL_FRONT, GL_AMBIENT, material->ambient);
-	glMaterialfv( GL_FRONT, GL_DIFFUSE, material->diffuse );
-	glMaterialfv( GL_FRONT, GL_SPECULAR, material->specular );
-	glMaterialfv( GL_FRONT, GL_EMISSION, material->emissive );
 	glMaterialf( GL_FRONT, GL_SHININESS, material->shininess );
 	glBindTexture( GL_TEXTURE_2D, texture);
 	glEnable( GL_TEXTURE_2D );
@@ -349,4 +390,16 @@ void CMS3DFile::drawGroup(ms3d_group_t* group){
 		}
 	}glEnd();
 }
-	
+
+void CMS3DFile::setOverrideAmbient(bool overrideAmbient){
+	_overrideAmbient = overrideAmbient;
+}
+void CMS3DFile::setOverrideDiffuse(bool overrideDiffuse){
+	_overrideDiffuse = overrideDiffuse;
+}
+void CMS3DFile::setOverrideSpecular(bool overrideSpecular){
+	_overrideSpecular = overrideSpecular;
+}
+void CMS3DFile::setOverrideEmissive(bool overrideEmissive){
+	_overrideEmissive = overrideEmissive;
+}

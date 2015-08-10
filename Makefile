@@ -8,6 +8,13 @@ install:
 	ln -s /usr/lib/libms3d.so.1.0.1 /usr/lib/libms3d.so
 	ln -s /usr/lib/libms3d.so.1.0.1 /usr/lib/libms3d.so.1
 
+reinstall:
+	cp libms3d.so.1.0.1 /usr/lib
+	rm /usr/lib/libms3d.so
+	ln -s /usr/lib/libms3d.so.1.0.1 /usr/lib/libms3d.so
+	rm /usr/lib/libms3d.so.1
+	ln -s /usr/lib/libms3d.so.1.0.1 /usr/lib/libms3d.so.1
+
 clean:
 	rm textures.o
 	rm ms3dfile.o
