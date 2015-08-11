@@ -1,7 +1,7 @@
 all:
-	g++ -c -fPIC MS3DFile.cpp -o ms3dfile.o -lGL -lGLU -lglut -ljpeg -lpng
-	g++ -c -fPIC Textures.cpp -o textures.o -lGL -lGLU -lglut -ljpeg -lpng
-	gcc -shared -Wl,-soname,libms3d.so.1 -o libms3d.so.1.0.1 ms3dfile.o textures.o
+	g++ -c -fPIC MS3DFile.cpp -o ms3dfile.o -O3 -lGL -lGLU -lglut -ljpeg -lpng
+	g++ -c -fPIC Textures.cpp -o textures.o -O3 -lGL -lGLU -lglut -ljpeg -lpng
+	gcc -O3 -shared -Wl,-soname,libms3d.so.1 -o libms3d.so.1.0.1 ms3dfile.o textures.o
 
 install:
 	cp libms3d.so.1.0.1 /usr/lib
