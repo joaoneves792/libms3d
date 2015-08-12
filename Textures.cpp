@@ -154,7 +154,8 @@ int loadPNG(const char* file_name, textureImage* texture){
     // set the individual row_pointers to point at the correct offsets of image_data
     for (unsigned int i = 0; i < temp_height; i++)
     {
-        row_pointers[temp_height - 1 - i] = texture->data + i * rowbytes;
+        //row_pointers[temp_height - 1 - i] = texture->data + i * rowbytes;
+        row_pointers[temp_height - 1 - i] = texture->data + (temp_height - 1 - i) * rowbytes;
     }
 
     // read the png into image_data through row_pointers
