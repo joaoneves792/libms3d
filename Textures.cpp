@@ -314,7 +314,9 @@ GLuint LoadGLTexture(const char* name){
 
 	status = false;
 	texti = (textureImage *)malloc(sizeof(textureImage));
-	
+
+	//printf("Loading %s\n", name);
+
 	if(!fn.substr(fn.find_last_of(".")+1).compare("bmp"))
 		loadBMP(name, texti);
 	else if(!fn.substr(fn.find_last_of(".")+1).compare("jpg") || !fn.substr(fn.find_last_of(".")+1).compare("jpeg") )   
