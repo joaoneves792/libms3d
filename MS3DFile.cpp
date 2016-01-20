@@ -377,16 +377,25 @@ void CMS3DFile::setMaterial(int texture, ms3d_group_t* group){
 
 void CMS3DFile::drawGroup(ms3d_group_t* group){
 	glBegin( GL_TRIANGLES );{
-		for(int j=0; j<group->numtriangles; j++){
+		int numTriangles = group->numtriangles;
+		for(int j=0; j<numTriangles; j++){
 			int triangleIndex = (int)group->triangleIndices[j];
 			ms3d_triangle_t* tri = &(_i->arrTriangles[triangleIndex]);
 			//Draw each vertex
-			for(int k=0;k<3;k++){
-				int index = tri->vertexIndices[k];
-				glNormal3fv( tri->vertexNormals[k] );
-				glTexCoord2f( tri->s[k], tri->t[k] );
-				glVertex3fv( _i->arrVertices[index].vertex );
-			}
+			//for(int k=0;k<3;k++){
+				//Aparently gcc would still do the for loop even with -O3 so we just expand it by hand
+				glNormal3fv( tri->vertexNormals[0] );
+				glTexCoord2f( tri->s[0], tri->t[0] );
+				glVertex3fv( _i->arrVertices[tri->vertexIndices[0]].vertex );
+			
+				glNormal3fv( tri->vertexNormals[1] );
+				glTexCoord2f( tri->s[1], tri->t[1] );
+				glVertex3fv( _i->arrVertices[tri->vertexIndices[1]].vertex );
+				
+				glNormal3fv( tri->vertexNormals[2] );
+				glTexCoord2f( tri->s[2], tri->t[2] );
+				glVertex3fv( _i->arrVertices[tri->vertexIndices[2]].vertex );
+			//}
 		}
 	}glEnd();
 }
