@@ -7,6 +7,7 @@
  */
 #pragma warning(disable : 4786)
 #include "MS3DFile.h"
+#include "MS3DFileI.h"
 #include "Textures.h"
 #include <iostream>
 #include <cstdio>
@@ -16,29 +17,6 @@
 #include <GL/glut.h>
 
 #define MAKEDWORD(a, b)      ((unsigned int)(((word)(a)) | ((word)((word)(b))) << 16))
-
-class CMS3DFileI
-{
-public:
-	std::vector<ms3d_vertex_t> arrVertices;
-	std::vector<ms3d_triangle_t> arrTriangles;
-	std::vector<ms3d_edge_t> arrEdges;
-	std::vector<ms3d_group_t> arrGroups;
-	std::vector<ms3d_material_t> arrMaterials;
-	std::vector<int> arrTextures; //Contains the ids of the OpenGL textures, Indexes match between this and arrMaterials
-	float fAnimationFPS;
-	float fCurrentTime;
-	int iTotalFrames;
-	std::vector<ms3d_joint_t> arrJoints;
-
-public:
-	CMS3DFileI()
-	:	fAnimationFPS(24.0f),
-		fCurrentTime(0.0f),
-		iTotalFrames(0)
-	{
-	}
-};
 
 CMS3DFile::CMS3DFile()
 {
@@ -193,6 +171,87 @@ bool CMS3DFile::LoadFromFile(const char* lpszFileName)
 		}
 	}
 	
+	SaveToFile("/home/joao/testing.ms3d");
+	
+	return true;
+}
+
+bool CMS3DFile::SaveToFile(const char* lpszFileName)
+{
+	FILE *fp = fopen(lpszFileName, "w");
+	if (!fp)
+		return false;
+
+	//header
+	ms3d_header_t header;
+	header.id[0] = 'M';
+	header.id[1] = 'S';
+	header.id[2] = '3';
+	header.id[3] = 'D';
+	header.id[4] = '0';
+	header.id[5] = '0';
+	header.id[6] = '0';
+	header.id[7] = '0';
+	header.id[8] = '0';
+	header.id[9] = '0';
+	header.version = 4;
+	fwrite(&header, sizeof(ms3d_header_t), 1, fp);
+
+	// vertices
+	word nNumVertices = _i->arrVertices.size();
+	fwrite(&nNumVertices, sizeof(word), 1, fp);
+	fwrite(&_i->arrVertices[0], sizeof(ms3d_vertex_t), nNumVertices, fp);
+
+	
+	// triangles
+	word nNumTriangles = _i->arrTriangles.size();
+	fwrite(&nNumTriangles, sizeof(word), 1, fp);
+	fwrite(&_i->arrTriangles[0], sizeof(ms3d_triangle_t), nNumTriangles, fp);	
+	
+	
+	// groups
+	word nNumGroups = _i->arrGroups.size();
+	fwrite(&nNumGroups, sizeof(word), 1, fp);
+
+	word i;
+	for (i = 0; i < nNumGroups; i++)
+	{
+		fwrite(&_i->arrGroups[i].flags, sizeof(byte), 1, fp);
+		fwrite(&_i->arrGroups[i].name, sizeof(char), 32, fp);
+		fwrite(&_i->arrGroups[i].numtriangles, sizeof(word), 1, fp);
+		fwrite(_i->arrGroups[i].triangleIndices, sizeof(word), _i->arrGroups[i].numtriangles, fp);
+		fwrite(&_i->arrGroups[i].materialIndex, sizeof(char), 1, fp);
+	}
+
+	
+	// materials
+	word nNumMaterials = _i->arrMaterials.size();
+	fwrite(&nNumMaterials, sizeof(word), 1, fp);
+	fwrite(&_i->arrMaterials[0], sizeof(ms3d_material_t), nNumMaterials, fp);
+
+	
+	fwrite(&_i->fAnimationFPS, sizeof(float), 1, fp);
+	fwrite(&_i->fCurrentTime, sizeof(float), 1, fp);
+	fwrite(&_i->iTotalFrames, sizeof(int), 1, fp);
+	
+
+	// joints
+	word nNumJoints = _i->arrJoints.size();
+	fwrite(&nNumJoints, sizeof(word), 1, fp);
+	for (i = 0; i < nNumJoints; i++)
+	{
+		fwrite(&_i->arrJoints[i].flags, sizeof(byte), 1, fp);
+		fwrite(&_i->arrJoints[i].name, sizeof(char), 32, fp);
+		fwrite(&_i->arrJoints[i].parentName, sizeof(char), 32, fp);
+		fwrite(&_i->arrJoints[i].rotation, sizeof(float), 3, fp);
+		fwrite(&_i->arrJoints[i].position, sizeof(float), 3, fp);
+		fwrite(&_i->arrJoints[i].numKeyFramesRot, sizeof(word), 1, fp);
+		fwrite(&_i->arrJoints[i].numKeyFramesTrans, sizeof(word), 1, fp);
+		fwrite(_i->arrJoints[i].keyFramesRot, sizeof(ms3d_keyframe_rot_t), _i->arrJoints[i].numKeyFramesRot, fp);
+		fwrite(_i->arrJoints[i].keyFramesTrans, sizeof(ms3d_keyframe_pos_t), _i->arrJoints[i].numKeyFramesTrans, fp);
+	}
+
+	fclose(fp);
 	return true;
 }
 

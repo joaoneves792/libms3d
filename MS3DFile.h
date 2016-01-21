@@ -121,6 +121,7 @@ public:
 
 public:
 	bool LoadFromFile(const char* lpszFileName);
+	bool SaveToFile(const char* lpszFileName);
 	void Clear();
 
 	int GetNumVertices();
