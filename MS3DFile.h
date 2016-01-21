@@ -115,11 +115,20 @@ typedef struct
 class CMS3DFileI;
 class CMS3DFile
 {
+private:
+	CMS3DFileI *_i;
+	bool _overrideAmbient;
+	bool _overrideDiffuse;
+	bool _overrideSpecular;
+	bool _overrideEmissive;
+	
+	float* _white;
+	float* _black;
+
 public:
 	CMS3DFile();
 	virtual ~CMS3DFile();
 
-public:
 	bool LoadFromFile(const char* lpszFileName);
 	bool SaveToFile(const char* lpszFileName);
 	void Clear();
@@ -155,21 +164,12 @@ public:
 	void setOverrideSpecular(bool overrideSpecular);
 	void setOverrideEmissive(bool overrideEmissive);
 
-
-
-private:
-	CMS3DFileI *_i;
-	bool _overrideAmbient;
-	bool _overrideDiffuse;
-	bool _overrideSpecular;
-	bool _overrideEmissive;
-	
-	float* _white;
-	float* _black;
-
-public:
 	CMS3DFile(const CMS3DFile& rhs);
 	CMS3DFile& operator=(const CMS3DFile& rhs);
+
+private:
+	void mergeGroups();
+	void removeUnusedMaterials();
 };
 
 #endif // _MS3DFILE_H_
