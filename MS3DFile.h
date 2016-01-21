@@ -60,7 +60,7 @@ typedef struct
     byte            flags;                              // SELECTED | HIDDEN
     char            name[32];                           //
     word            numtriangles;                       //
-	word*			triangleIndices;					// the groups group the triangles
+    word*	    triangleIndices;			// the groups group the triangles
     char            materialIndex;                      // -1 = no material
 } ms3d_group_t;
 
@@ -123,6 +123,8 @@ public:
 	bool LoadFromFile(const char* lpszFileName);
 	bool SaveToFile(const char* lpszFileName);
 	void Clear();
+
+	void optimize();
 
 	int GetNumVertices();
 	void GetVertexAt(int nIndex, ms3d_vertex_t **ppVertex);

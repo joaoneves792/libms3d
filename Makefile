@@ -3,6 +3,14 @@ all:
 	g++ -c -fPIC Textures.cpp -o textures.o -O3 -lGL -lGLU -lglut -ljpeg -lpng
 	gcc -O3 -shared -Wl,-soname,libms3d.so.1 -o libms3d.so.1.0.1 ms3dfile.o textures.o
 
+optimizer:
+	g++ -g -o optimizer optimizer.cpp -lms3d -lGL -lGLU -lglut -ljpeg -lpng
+
+debug:
+	g++ -g -c -fPIC MS3DFile.cpp -o ms3dfile.o -lGL -lGLU -lglut -ljpeg -lpng
+	g++ -g -c -fPIC Textures.cpp -o textures.o -lGL -lGLU -lglut -ljpeg -lpng
+	gcc -g -shared -Wl,-soname,libms3d.so.1 -o libms3d.so.1.0.1 ms3dfile.o textures.o
+
 optimized:
 	g++ -c -fPIC MS3DFile.cpp -o ms3dfile.o -O3 -march=core2 -mtune=core2 -lGL -lGLU -lglut -ljpeg -lpng
 	g++ -c -fPIC Textures.cpp -o textures.o -O3 -march=core2 -mtune=core2 -lGL -lGLU -lglut -ljpeg -lpng
@@ -24,3 +32,4 @@ clean:
 	rm textures.o
 	rm ms3dfile.o
 	rm libms3d.so.1.0.1
+	rm optimizer
