@@ -16,6 +16,7 @@
 #include <vector>
 #include <iterator>
 #include <GL/glut.h>
+#include <GLES3/gl3.h>
 
 #define MAKEDWORD(a, b)      ((unsigned int)(((word)(a)) | ((word)((word)(b))) << 16))
 
@@ -458,6 +459,56 @@ void CMS3DFile::drawGroup(ms3d_group_t* group){
 	}glEnd();
 }
 
+void CMS3DFile::prepareModel(){
+	GLuint vao[_i->arrGroups.size()];
+
+	glGenVertexArrays(_i->arrGroups.size(), vao);
+
+	for(int i=0; i < _i->arrGroups.size(); i++){
+		prepareGroup(&(_i->arrGroups[i]), vao[i]);
+	}		
+}
+
+void CMS3DFile::prepareGroup(ms3d_group_t* group, GLuint vao){
+	glBindVertexArray(vao);
+		
+	int numTriangles = group->numtriangles;
+
+	GLfloat vertices_position[numTriangles*9];
+	GLfloat vertices_normals[numTriangles*9];
+	GLfloat texture_coord[numTriangles*6];
+
+	
+	/*Fill the arrays*/
+	int i = 0;
+	int t = 0;
+	for(int j=0; j<numTriangles; j++){
+		int triangleIndex = (int)group->triangleIndices[j];
+		ms3d_triangle_t* tri = &(_i->arrTriangles[triangleIndex]);
+		for(int k = 0; k < 3; k++){
+			vertices_position[i] = _i->arrVertices[tri->vertexIndices[k]].vertex[0]; 
+			vertices_position[i+1] = _i->arrVertices[tri->vertexIndices[k]].vertex[1]; 
+			vertices_position[i+2] = _i->arrVertices[tri->vertexIndices[k]].vertex[2];
+
+			vertices_normals[i] = tri->vertexNormals[k][0];
+			vertices_normals[i+1] = tri->vertexNormals[k][1];
+			vertices_normals[i+2] = tri->vertexNormals[k][2];
+
+			texture_coord[t++] = tri->s[k];
+			texture_coord[t++] = tri->t[k];
+
+			i += 3;
+			j += 3;
+		}
+	}
+
+
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	//TODO continue
+}
 void CMS3DFile::setOverrideAmbient(bool overrideAmbient){
 	_overrideAmbient = overrideAmbient;
 }

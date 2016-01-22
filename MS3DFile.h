@@ -12,6 +12,8 @@
 
 //#include <pshpack1.h>
 
+#include <GL/glut.h> 
+
 #ifndef RC_INVOKED
 #pragma pack(push,1)
 #endif
@@ -134,6 +136,9 @@ public:
 	void Clear();
 
 	void optimize();
+
+	void prepareModel();
+	void prepareGroup(ms3d_group_t* group, GLuint vao);
 
 	int GetNumVertices();
 	void GetVertexAt(int nIndex, ms3d_vertex_t **ppVertex);
