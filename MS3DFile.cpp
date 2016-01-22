@@ -383,6 +383,26 @@ void CMS3DFile::draw(){
 		glDisable( GL_TEXTURE_2D );
 }
 
+void CMS3DFile::drawES(){
+	GLboolean texEnabled = glIsEnabled( GL_TEXTURE_2D );
+	
+	for(int i=0; i < _i->arrGroups.size(); i++){
+		int materialIndex = (int)_i->arrGroups[i].materialIndex;
+		if( materialIndex >= 0 )
+			setMaterial(&(_i->arrMaterials[materialIndex]), materialIndex); 
+		else
+			glDisable( GL_TEXTURE_2D );
+		glBindVertexArray(_vao[i]);
+		glDrawElements(GL_TRIANGLES, _i->arrGroups[i].numtriangles, GL_UNSIGNED_INT, 0);
+	}		
+
+	if ( texEnabled )
+		glEnable( GL_TEXTURE_2D );
+	else
+		glDisable( GL_TEXTURE_2D );
+}
+
+
 void CMS3DFile::setMaterial(ms3d_material_t* material, int textureIndex){
 	if(_overrideAmbient)
 		glMaterialfv( GL_FRONT, GL_AMBIENT, _white);
@@ -460,12 +480,13 @@ void CMS3DFile::drawGroup(ms3d_group_t* group){
 }
 
 void CMS3DFile::prepareModel(){
-	GLuint vao[_i->arrGroups.size()];
+	
+	_vao = new GLuint [_i->arrGroups.size()];
 
-	glGenVertexArrays(_i->arrGroups.size(), vao);
+	glGenVertexArrays(_i->arrGroups.size(), _vao);
 
 	for(int i=0; i < _i->arrGroups.size(); i++){
-		prepareGroup(&(_i->arrGroups[i]), vao[i]);
+		prepareGroup(&(_i->arrGroups[i]), _vao[i]);
 	}		
 }
 
@@ -507,8 +528,29 @@ void CMS3DFile::prepareGroup(ms3d_group_t* group, GLuint vao){
 	glGenBuffers(1, &vbo);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	//TODO continue
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices_position) + sizeof(texture_coord) + sizeof(vertices_normals), NULL, GL_STATIC_DRAW);
+
+	/*Copy the data to the buffer*/
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices_position), vertices_position);
+	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertices_position), sizeof(texture_coord), texture_coord);
+	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertices_position) + sizeof(texture_coord), sizeof(vertices_normals), vertices_normals);
+
+	GLuint shaderProgram;
+        //shaderProgram = create_program(..);
+	
+	//Position Attribute
+	GLint position_attribute = glGetAttribLocation(shaderProgram, "position");
+	glVertexAttribPointer(position_attribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(position_attribute);
+
+	//Texture coord attribute
+	GLint texture_coord_attribute = glGetAttribLocation(shaderProgram, "texture_coord");
+	glVertexAttribPointer(texture_coord_attribute, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *)sizeof(vertices_position));
+	glEnableVertexAttribArray(texture_coord_attribute);
+
+	//TODO Pass the normals and implement lighting in the shaders
 }
+
 void CMS3DFile::setOverrideAmbient(bool overrideAmbient){
 	_overrideAmbient = overrideAmbient;
 }
