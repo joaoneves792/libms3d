@@ -2,8 +2,9 @@ all:
 	g++ -c -fPIC MS3DFile.cpp -o ms3dfile.o -O3 -lGL -lGLU -lglut -ljpeg -lpng
 	g++ -c -fPIC optimizations.cpp -o optimizations.o -O3
 	g++ -c -fPIC Shader.cpp -o Shader.o -O3
+	g++ -c -fPIC MS3DFileIO.cpp -o MS3DFileIO.o -O3
 	g++ -c -fPIC Textures.cpp -o textures.o -O3 -lGL -lGLU -lglut -ljpeg -lpng
-	gcc -O3 -shared -Wl,-soname,libms3d.so.1 -o libms3d.so.1.0.1 ms3dfile.o textures.o optimizations.o Shader.o
+	gcc -O3 -shared -Wl,-soname,libms3d.so.1 -o libms3d.so.1.0.1 ms3dfile.o textures.o optimizations.o Shader.o MS3DFileIO.o
 
 optimizer:
 	g++ -g -o optimizer optimizer.cpp -lms3d -lGL -lGLU -lglut -ljpeg -lpng
