@@ -120,7 +120,6 @@ class CMS3DFile
 private:
 	CMS3DFileI *_i;
 	GLuint* _vao;
-	GLuint _shaderProgram;
 	bool _overrideAmbient;
 	bool _overrideDiffuse;
 	bool _overrideSpecular;
@@ -139,11 +138,8 @@ public:
 
 	void optimize();
 
-	void prepareModel();
-	void prepareGroup(ms3d_group_t* group, GLuint vao);
-	void drawES();
-
-	GLuint getShaderProgram();
+	void prepareModel(GLuint shader);
+	void drawGL3();
 
 	int GetNumVertices();
 	void GetVertexAt(int nIndex, ms3d_vertex_t **ppVertex);
@@ -165,7 +161,6 @@ public:
 	int GetTotalFrames();
 
 	void draw();
-	void drawGroup(ms3d_group_t* group);
 	void setMaterial(ms3d_material_t* material, int textureIndex);
 	void setMaterial(int texture, ms3d_group_t* group);
 
@@ -180,6 +175,8 @@ public:
 private:
 	void mergeGroups();
 	void removeUnusedMaterials();
+	void prepareGroup(ms3d_group_t* group, GLuint vao, GLuint shader);
+	void drawGroup(ms3d_group_t* group);
 };
 
 #endif // _MS3DFILE_H_

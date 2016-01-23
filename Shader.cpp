@@ -4,9 +4,24 @@
 #include <fstream>
 #include <GLES3/gl3.h>
 
+#include "Shader.h"
+
+
+Shader::Shader(const char* path_vert_shader, const char* path_frag_shader){
+	create_program(path_vert_shader, path_frag_shader);
+}
+
+Shader::~Shader(){
+	//TODO Figure out what to place here...
+}
+
+GLuint Shader::getShader(){
+	return _shaderProgram;
+}
+
 // Read a shader source from a file
 // store the shader source in a std::vector<char>
-void read_shader_src(const char *fname, std::vector<char> &buffer) {
+void Shader::read_shader_src(const char *fname, std::vector<char> &buffer) {
         std::ifstream in;
         in.open(fname, std::ios::binary);
 
@@ -33,7 +48,7 @@ void read_shader_src(const char *fname, std::vector<char> &buffer) {
 
 
 // Compile a shader
-GLuint load_and_compile_shader(const char *fname, GLenum shaderType) {
+GLuint Shader::load_and_compile_shader(const char *fname, GLenum shaderType) {
         // Load a shader from an external file
         std::vector<char> buffer;
         read_shader_src(fname, buffer);
@@ -57,7 +72,7 @@ GLuint load_and_compile_shader(const char *fname, GLenum shaderType) {
 }
 
 // Create a program from two shaders
-GLuint create_program(const char *path_vert_shader, const char *path_frag_shader) {
+void Shader::create_program(const char *path_vert_shader, const char *path_frag_shader) {
         // Load and compile the vertex and fragment shaders
         GLuint vertexShader = load_and_compile_shader(path_vert_shader, GL_VERTEX_SHADER);
         GLuint fragmentShader = load_and_compile_shader(path_frag_shader, GL_FRAGMENT_SHADER);
@@ -75,6 +90,7 @@ GLuint create_program(const char *path_vert_shader, const char *path_frag_shader
         glLinkProgram(shaderProgram);
         glUseProgram(shaderProgram);
 
-        return shaderProgram;
+        _shaderProgram = shaderProgram;
+	
 }
 
