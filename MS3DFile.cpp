@@ -293,27 +293,24 @@ void CMS3DFile::prepareGroup(ms3d_group_t* group, GLuint vao, GLuint shader){
 	//GLfloat vertices_position[_i->arrVertices.size()*3];
 
 	//Fill the arrays
-	int i = 0;
-	int t = 0;
-	int l = 0;
+	int vertex_coordinate_index = 0;
+	int texture_coordinate_index = 0;
+	int normal_coordinate_index = 0;
 	for(int j=0; j<numTriangles; j++){
 		int triangleIndex = (int)group->triangleIndices[j];
 		ms3d_triangle_t* tri = &(_i->arrTriangles[triangleIndex]);
 		for(int k = 0; k < 3; k++){
-			vertices_position[i] = _i->arrVertices[tri->vertexIndices[k]].vertex[0]; 
-			vertices_position[i+1] = _i->arrVertices[tri->vertexIndices[k]].vertex[1]; 
-			vertices_position[i+2] = _i->arrVertices[tri->vertexIndices[k]].vertex[2];
-			vertices_position[i+3] = 1.0;
+			vertices_position[vertex_coordinate_index++] = _i->arrVertices[tri->vertexIndices[k]].vertex[0]; 
+			vertices_position[vertex_coordinate_index++] = _i->arrVertices[tri->vertexIndices[k]].vertex[1]; 
+			vertices_position[vertex_coordinate_index++] = _i->arrVertices[tri->vertexIndices[k]].vertex[2];
+			vertices_position[vertex_coordinate_index++] = 1.0;
 
-			vertices_normals[l] = tri->vertexNormals[k][0];
-			vertices_normals[l+1] = tri->vertexNormals[k][1];
-			vertices_normals[l+2] = tri->vertexNormals[k][2];
+			vertices_normals[normal_coordinate_index++] = tri->vertexNormals[k][0];
+			vertices_normals[normal_coordinate_index++] = tri->vertexNormals[k][1];
+			vertices_normals[normal_coordinate_index++] = tri->vertexNormals[k][2];
 
-			texture_coord[t++] = tri->s[k];
-			texture_coord[t++] = tri->t[k];
-
-			i += 4;
-			l += 3;
+			texture_coord[texture_coordinate_index++] = tri->s[k];
+			texture_coord[texture_coordinate_index++] = tri->t[k];
 		}
 	}
 
