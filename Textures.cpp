@@ -106,14 +106,13 @@ int loadPNG(const char* file_name, textureImage* texture){
         return 0;
     }
 
-    GLint format;
     switch(color_type){
 	case PNG_COLOR_TYPE_RGB:
-        	format = GL_RGB;
+        	//format = GL_RGB;
        		texture->alpha = false;
 		break;
     	case PNG_COLOR_TYPE_RGB_ALPHA:
-        	format = GL_RGBA;
+        	//format = GL_RGBA;
 		texture->alpha = true;
         	break;
     	default:
@@ -307,12 +306,10 @@ int loadBMP(const char *filename, textureImage *texture)
 }
 
 GLuint LoadGLTexture(const char* name){
-	bool status;
 	textureImage *texti;
 	GLuint texPntr[1];
 	std::string fn(name);
 
-	status = false;
 	texti = (textureImage *)malloc(sizeof(textureImage));
 
 	//printf("Loading %s\n", name);
@@ -325,7 +322,6 @@ GLuint LoadGLTexture(const char* name){
 		loadPNG(name, texti);
 	
      if(texti){
-        status = true;
         glGenTextures(1, &texPntr[0]);   /* create the texture */
         glBindTexture(GL_TEXTURE_2D, texPntr[0]);
         /* actually generate the texture */

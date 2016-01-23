@@ -155,7 +155,7 @@ int CMS3DFile::GetTotalFrames()
 void CMS3DFile::draw(){
 	GLboolean texEnabled = glIsEnabled( GL_TEXTURE_2D );
 	
-	for(int i=0; i < _i->arrGroups.size(); i++){
+	for(unsigned int i=0; i < _i->arrGroups.size(); i++){
 		int materialIndex = (int)_i->arrGroups[i].materialIndex;
 		if( materialIndex >= 0 ){
 			setMaterial(&(_i->arrMaterials[materialIndex]), materialIndex); 
@@ -173,7 +173,7 @@ void CMS3DFile::draw(){
 void CMS3DFile::drawGL3(){
 	GLboolean texEnabled = glIsEnabled( GL_TEXTURE_2D );
 	
-	for(int i=0; i < _i->arrGroups.size(); i++){
+	for(unsigned int i=0; i < _i->arrGroups.size(); i++){
 		int materialIndex = (int)_i->arrGroups[i].materialIndex;
 		if( materialIndex >= 0 )
 			setMaterial(&(_i->arrMaterials[materialIndex]), materialIndex); 
@@ -272,7 +272,7 @@ void CMS3DFile::prepareModel(GLuint shader){
 
 	glGenVertexArrays(_i->arrGroups.size(), _vao);
 
-	for(int i=0; i < _i->arrGroups.size(); i++){
+	for(unsigned int i=0; i < _i->arrGroups.size(); i++){
 		prepareGroup(&(_i->arrGroups[i]), _vao[i], shader);
 	}		
 
@@ -296,7 +296,6 @@ void CMS3DFile::prepareGroup(ms3d_group_t* group, GLuint vao, GLuint shader){
 	int i = 0;
 	int t = 0;
 	int l = 0;
-	int m = 0;
 	for(int j=0; j<numTriangles; j++){
 		int triangleIndex = (int)group->triangleIndices[j];
 		ms3d_triangle_t* tri = &(_i->arrTriangles[triangleIndex]);

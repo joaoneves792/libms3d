@@ -11,10 +11,10 @@ void CMS3DFile::mergeGroups(){
 	ms3d_group_t* otherGroup;
 	char curMaterial = -1;
 	char otherMaterial = -1;
-	for(int i = 0; i < groups->size(); i++){
+	for(unsigned int i = 0; i < groups->size(); i++){
 		curGroup = &(*groups)[i];
 		curMaterial = curGroup->materialIndex;
-		for(int j=i+1; j<groups->size(); j++){
+		for(unsigned int j=i+1; j<groups->size(); j++){
 			otherGroup = &(*groups)[j];
 			otherMaterial = otherGroup->materialIndex;
 			if(curMaterial == otherMaterial){
