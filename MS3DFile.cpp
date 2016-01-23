@@ -9,6 +9,7 @@
 #include "MS3DFile.h"
 #include "MS3DFileI.h"
 #include "Textures.h"
+#include "shaders.h"
 #include <iostream>
 #include <cstdio>
 #include <cstring>
@@ -393,13 +394,15 @@ void CMS3DFile::drawES(){
 		else
 			glDisable( GL_TEXTURE_2D );
 		glBindVertexArray(_vao[i]);
-		glDrawElements(GL_TRIANGLES, _i->arrGroups[i].numtriangles, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, _i->arrGroups[i].numtriangles*3, GL_UNSIGNED_INT, 0);
 	}		
 
 	if ( texEnabled )
 		glEnable( GL_TEXTURE_2D );
 	else
 		glDisable( GL_TEXTURE_2D );
+	/*glBindVertexArray(_vao[0]);
+	glDrawElements(GL_TRIANGLES, _i->arrTriangles.size(), GL_UNSIGNED_INT, 0);*/
 }
 
 
@@ -488,6 +491,66 @@ void CMS3DFile::prepareModel(){
 	for(int i=0; i < _i->arrGroups.size(); i++){
 		prepareGroup(&(_i->arrGroups[i]), _vao[i]);
 	}		
+
+	/*glBindVertexArray(_vao[0]);
+
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+
+	GLfloat vertices_position[_i->arrVertices.size()*3];
+
+	int j = 0;
+	for(int i = 0; i<_i->arrVertices.size(); i++){
+		vertices_position[j++] = _i->arrVertices[i].vertex[0];
+		vertices_position[j++] = _i->arrVertices[i].vertex[1];
+		vertices_position[j++] = _i->arrVertices[i].vertex[2];
+	}
+
+
+	GLfloat texture_coord[_i->arrTriangles.size()*6];
+	j = 0;
+	for(int i = 0; i<_i->arrTriangles.size(); i++){
+		texture_coord[j++] = _i->arrTriangles[i].s[0];
+		texture_coord[j++] = _i->arrTriangles[i].t[0];
+		texture_coord[j++] = _i->arrTriangles[i].s[1];
+		texture_coord[j++] = _i->arrTriangles[i].t[1];
+		texture_coord[j++] = _i->arrTriangles[i].s[2];
+		texture_coord[j++] = _i->arrTriangles[i].t[2];
+	}
+
+	GLuint indices[_i->arrTriangles.size()]; 
+	j = 0;
+	for(int i = 0; i<_i->arrTriangles.size(); i++){
+		indices[j++] = _i->arrTriangles[i].vertexIndices[0];	
+		indices[j++] = _i->arrTriangles[i].vertexIndices[1];	
+		indices[j++] = _i->arrTriangles[i].vertexIndices[2];
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices_position) + sizeof(texture_coord), NULL, GL_STATIC_DRAW);
+
+	//Copy the data to the buffer
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices_position) , vertices_position);
+	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertices_position), sizeof(texture_coord), texture_coord);
+
+	//Set up the indices
+	GLuint eab;
+	glGenBuffers(1, &eab);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eab);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+        _shaderProgram = create_program("shaders/vert.shader", "shaders/frag.shader");
+	
+	//Position Attribute
+	GLint position_attribute = glGetAttribLocation(_shaderProgram, "position");
+	glVertexAttribPointer(position_attribute, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*4, 0);
+	glEnableVertexAttribArray(position_attribute);
+
+	//Texture coord attribute
+	GLint texture_coord_attribute = glGetAttribLocation(_shaderProgram, "texture_coord");
+	glVertexAttribPointer(texture_coord_attribute, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *)sizeof(vertices_position));
+	glEnableVertexAttribArray(texture_coord_attribute);
+	*/
 }
 
 void CMS3DFile::prepareGroup(ms3d_group_t* group, GLuint vao){
@@ -495,14 +558,20 @@ void CMS3DFile::prepareGroup(ms3d_group_t* group, GLuint vao){
 		
 	int numTriangles = group->numtriangles;
 
-	GLfloat vertices_position[numTriangles*9];
+	GLfloat vertices_position[numTriangles*3*4];
 	GLfloat vertices_normals[numTriangles*9];
 	GLfloat texture_coord[numTriangles*6];
 
+	int numVertices = numTriangles*3;
+	GLuint indices[numVertices];
 	
-	/*Fill the arrays*/
+	//GLfloat vertices_position[_i->arrVertices.size()*3];
+
+	//Fill the arrays
 	int i = 0;
 	int t = 0;
+	int l = 0;
+	int m = 0;
 	for(int j=0; j<numTriangles; j++){
 		int triangleIndex = (int)group->triangleIndices[j];
 		ms3d_triangle_t* tri = &(_i->arrTriangles[triangleIndex]);
@@ -510,17 +579,22 @@ void CMS3DFile::prepareGroup(ms3d_group_t* group, GLuint vao){
 			vertices_position[i] = _i->arrVertices[tri->vertexIndices[k]].vertex[0]; 
 			vertices_position[i+1] = _i->arrVertices[tri->vertexIndices[k]].vertex[1]; 
 			vertices_position[i+2] = _i->arrVertices[tri->vertexIndices[k]].vertex[2];
+			vertices_position[i+3] = 1.0;
 
-			vertices_normals[i] = tri->vertexNormals[k][0];
-			vertices_normals[i+1] = tri->vertexNormals[k][1];
-			vertices_normals[i+2] = tri->vertexNormals[k][2];
+			vertices_normals[l] = tri->vertexNormals[k][0];
+			vertices_normals[l+1] = tri->vertexNormals[k][1];
+			vertices_normals[l+2] = tri->vertexNormals[k][2];
 
 			texture_coord[t++] = tri->s[k];
 			texture_coord[t++] = tri->t[k];
 
-			i += 3;
-			j += 3;
+			i += 4;
+			l += 3;
 		}
+	}
+
+	for(int i = 0; i<numVertices; i++){
+		indices[i] = i;
 	}
 
 
@@ -535,16 +609,21 @@ void CMS3DFile::prepareGroup(ms3d_group_t* group, GLuint vao){
 	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertices_position), sizeof(texture_coord), texture_coord);
 	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertices_position) + sizeof(texture_coord), sizeof(vertices_normals), vertices_normals);
 
-	GLuint shaderProgram;
-        //shaderProgram = create_program(..);
+	//Set up the indices
+	GLuint eab;
+	glGenBuffers(1, &eab);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eab);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+        _shaderProgram = create_program("shaders/vert.shader", "shaders/frag.shader");
 	
 	//Position Attribute
-	GLint position_attribute = glGetAttribLocation(shaderProgram, "position");
-	glVertexAttribPointer(position_attribute, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	GLint position_attribute = glGetAttribLocation(_shaderProgram, "position");
+	glVertexAttribPointer(position_attribute, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*4, 0);
 	glEnableVertexAttribArray(position_attribute);
 
 	//Texture coord attribute
-	GLint texture_coord_attribute = glGetAttribLocation(shaderProgram, "texture_coord");
+	GLint texture_coord_attribute = glGetAttribLocation(_shaderProgram, "texture_coord");
 	glVertexAttribPointer(texture_coord_attribute, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *)sizeof(vertices_position));
 	glEnableVertexAttribArray(texture_coord_attribute);
 
@@ -562,6 +641,10 @@ void CMS3DFile::setOverrideSpecular(bool overrideSpecular){
 }
 void CMS3DFile::setOverrideEmissive(bool overrideEmissive){
 	_overrideEmissive = overrideEmissive;
+}
+
+GLuint CMS3DFile::getShaderProgram(){
+	return _shaderProgram;
 }
 
 void CMS3DFile::optimize(){

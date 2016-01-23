@@ -120,6 +120,7 @@ class CMS3DFile
 private:
 	CMS3DFileI *_i;
 	GLuint* _vao;
+	GLuint _shaderProgram;
 	bool _overrideAmbient;
 	bool _overrideDiffuse;
 	bool _overrideSpecular;
@@ -141,6 +142,8 @@ public:
 	void prepareModel();
 	void prepareGroup(ms3d_group_t* group, GLuint vao);
 	void drawES();
+
+	GLuint getShaderProgram();
 
 	int GetNumVertices();
 	void GetVertexAt(int nIndex, ms3d_vertex_t **ppVertex);
