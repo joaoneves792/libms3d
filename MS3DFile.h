@@ -120,6 +120,7 @@ class CMS3DFile
 private:
 	CMS3DFileI *_i;
 	GLuint* _vao;
+	GLuint _shader;
 	bool _overrideAmbient;
 	bool _overrideDiffuse;
 	bool _overrideSpecular;
@@ -163,6 +164,7 @@ public:
 	void draw();
 	void setMaterial(ms3d_material_t* material, int textureIndex);
 	void setMaterial(int texture, ms3d_group_t* group);
+	void setMaterialGL3(ms3d_material_t* material, int textureIndex);
 
 	void setOverrideAmbient(bool overrideAmbient);
 	void setOverrideDiffuse(bool overrideDiffuse);
@@ -175,7 +177,7 @@ public:
 private:
 	void mergeGroups();
 	void removeUnusedMaterials();
-	void prepareGroup(ms3d_group_t* group, GLuint vao, GLuint shader);
+	void prepareGroup(ms3d_group_t* group, GLuint vao);
 	void drawGroup(ms3d_group_t* group);
 };
 
