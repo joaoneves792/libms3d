@@ -1,6 +1,7 @@
 #include "MS3DFile.h"
 #include "MS3DFileI.h"
 
+#include <iostream>
 #include <vector>
 #include <list>
 
@@ -39,5 +40,20 @@ void CMS3DFile::mergeGroups(){
 }
 
 void CMS3DFile::removeUnusedMaterials(){
-	/* Maybe implement me some day... */
+
+	/*Not actually removing it, just erasing the texture associated with it so we dont load the image next time*/
+
+	int numOfMaterials = _i->arrMaterials.size();
+	bool used[numOfMaterials];
+	for(int i=0; i<numOfMaterials; i++)
+		used[i] = false;
+
+	for(unsigned int i=0; i<_i->arrGroups.size(); i++)
+		used[(int)_i->arrGroups[i].materialIndex] = true;
+
+	for(int i=0; i<numOfMaterials; i++)
+		if(!used[i]){
+			_i->arrMaterials[i].texture[0] = '\0';
+			std::cout << "Cleared out material: " << _i->arrMaterials[i].name << "\n";
+		}
 }
