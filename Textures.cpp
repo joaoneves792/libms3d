@@ -15,17 +15,11 @@
 #include <jpeglib.h>
 #include <png.h>
 
+#include "Textures.h"
+
 /*****************************************/
 /*  Load Bitmaps, Jpegs, Pngs And Convert To Textures */
 /*  Big mess of C and C++ code */
-
-
-typedef struct {
-    int width;
-    int height;
-    bool alpha;
-    unsigned char *data;
-}textureImage;
 
 int loadPNG(const char* file_name, textureImage* texture){
     // This function was originally written by David Grayson for
@@ -305,14 +299,27 @@ int loadBMP(const char *filename, textureImage *texture)
     return 1;
 }
 
+GLuint generateGLTexture(unsigned char* data, int height, int width, bool alpha){
+	GLuint texID = 0;
+     	if(data){
+        	glGenTextures(1, &texID);   /* create the texture */
+        	glBindTexture(GL_TEXTURE_2D, texID);
+        	/* actually generate the texture */
+        	glTexImage2D(GL_TEXTURE_2D, 0, (alpha)?GL_RGBA:GL_RGB, width, height, 0,
+        	    (alpha)?GL_RGBA:GL_RGB, GL_UNSIGNED_BYTE, data);
+        	/* enable linear filtering */
+        	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    	}
+	return texID;
+}
+
 GLuint LoadGLTexture(const char* name){
 	textureImage *texti;
-	GLuint texPntr[1];
 	std::string fn(name);
+	GLuint textureID = 0;
 
 	texti = (textureImage *)malloc(sizeof(textureImage));
-
-	//printf("Loading %s\n", name);
 
 	if(!fn.substr(fn.find_last_of(".")+1).compare("bmp"))
 		loadBMP(name, texti);
@@ -320,20 +327,16 @@ GLuint LoadGLTexture(const char* name){
 		loadJPEG(name, texti);
 	else if(!fn.substr(fn.find_last_of(".")+1).compare("png"))
 		loadPNG(name, texti);
+	else
+		return 0;
 	
-     if(texti){
-        glGenTextures(1, &texPntr[0]);   /* create the texture */
-        glBindTexture(GL_TEXTURE_2D, texPntr[0]);
-        /* actually generate the texture */
-        glTexImage2D(GL_TEXTURE_2D, 0, (texti->alpha)?GL_RGBA:GL_RGB, texti->width, texti->height, 0,
-            (texti->alpha)?GL_RGBA:GL_RGB, GL_UNSIGNED_BYTE, texti->data);
-        /* enable linear filtering */
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	if(texti)
+		textureID = generateGLTexture(texti->data, texti->height, texti->width, texti->alpha);
+
 	/* free the ram we used in our texture generation process */
         if (texti->data)
-            free(texti->data);
+        	free(texti->data);
         free(texti);
-    }    
-    return texPntr[0];
+
+	return textureID;
 }
