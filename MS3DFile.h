@@ -137,6 +137,8 @@ public:
 	bool SaveToFile(const char* lpszFileName);
 	void Clear();
 
+	void createRectangle(float width, float height, GLuint texture);
+
 	void optimize();
 
 	void prepareModel(GLuint shader);
@@ -165,6 +167,7 @@ public:
 	void setMaterial(ms3d_material_t* material, int textureIndex);
 	void setMaterial(int texture, ms3d_group_t* group);
 	void setMaterialGL3(ms3d_material_t* material, int textureIndex);
+	void setTexture(unsigned int textureIndex, int texture);
 
 	void setOverrideAmbient(bool overrideAmbient);
 	void setOverrideDiffuse(bool overrideDiffuse);

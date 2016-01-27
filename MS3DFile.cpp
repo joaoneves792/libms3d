@@ -264,6 +264,12 @@ void CMS3DFile::setMaterial(int texture, ms3d_group_t* group){
 	glEnable( GL_TEXTURE_2D );
 }
 
+void CMS3DFile::setTexture(unsigned int textureIndex, int texture){
+	if(textureIndex < _i->arrTextures.size())
+		_i->arrTextures[textureIndex] = texture;
+}
+
+
 void CMS3DFile::drawGroup(ms3d_group_t* group){
 	glBegin( GL_TRIANGLES );{
 		int numTriangles = group->numtriangles;
@@ -395,3 +401,89 @@ void CMS3DFile::optimize(){
 	mergeGroups();
 	removeUnusedMaterials();
 }
+
+void CMS3DFile::createRectangle(float width, float height, GLuint texture){
+
+	float vertBuffer[6*3] = { 0,height,0, 0,0,0, width,0,0,  width,0,0, width,height,0, 0,height,0 };
+	float normal[3] = { 0,0,1 };
+	float texCoordBuffer[6*2] = { 0,0, 0,1, 1,1, 1,1, 1,0, 0,0 };
+
+	int vertIndex = 0;
+
+	word nNumVertices = 6;
+	_i->arrVertices.resize(nNumVertices);
+	ms3d_vertex_t* vert;
+	for(int i=0; i<nNumVertices; i++){
+		vert = &_i->arrVertices[i];
+		vert->flags = 0;
+		vert->boneId = -1;
+		vert->vertex[0] = vertBuffer[vertIndex++];
+		vert->vertex[1] = vertBuffer[vertIndex++];
+		vert->vertex[2] = vertBuffer[vertIndex++];
+	}
+	
+	vertIndex = 0;
+	int texIndex = 0;
+	
+	word nNumTriangles = 2;
+	_i->arrTriangles.resize(nNumTriangles);
+	ms3d_triangle_t* tri;
+	for(int i=0; i<nNumTriangles; i++){
+		tri = &_i->arrTriangles[i];
+		tri->flags = 0;
+		tri->vertexIndices[0] = vertIndex++;
+		tri->vertexIndices[1] = vertIndex++;
+		tri->vertexIndices[2] = vertIndex++;
+
+		for(int j=0; j<3; j++){
+			tri->vertexNormals[j][0] = normal[0];
+			tri->vertexNormals[j][1] = normal[1];
+			tri->vertexNormals[j][2] = normal[2];
+		}
+		for(int j=0; j<3; j++){
+			tri->s[j] = texCoordBuffer[texIndex++];
+			tri->t[j] = texCoordBuffer[texIndex++];
+		}
+		tri->smoothingGroup = 1;
+		tri->groupIndex = 0;
+	}
+
+	word nNumGroups = 1;
+	_i->arrGroups.resize(nNumGroups);
+	ms3d_group_t* group = &_i->arrGroups[0];
+	group->flags = 0;
+	group->name[0] = '1';
+	group->name[1] = '\0';
+	group->numtriangles = 2;
+	group->triangleIndices = new word[2];
+	group->triangleIndices[0] = 0;
+	group->triangleIndices[1] = 1;
+	group->materialIndex = 0;
+
+	word nNumMaterials = 1;
+	_i->arrMaterials.resize(nNumMaterials);
+	ms3d_material_t* mat = &_i->arrMaterials[0];
+	mat->name[0] = '1';
+	mat->name[1] = '\0';
+	for(int i=0; i<3; i++){
+		mat->ambient[i] = 25;
+		mat->diffuse[i] = 200;
+		mat->specular[i] = 0;
+		mat->emissive[i] = 0;
+	}
+	mat->ambient[3] = 0;
+	mat->diffuse[3] = 0;
+	mat->specular[3] = 0;
+	mat->emissive[3] = 0;
+	mat->shininess = 0;
+	mat->transparency = 1;
+	mat->mode = 0;
+	mat->texture[0] = '\0';
+	mat->alphamap[0] = '\0';
+	
+	_i->arrTextures.resize(1);
+	_i->arrTextures[0] = texture;
+
+	_i->arrJoints.resize(0);
+}
+
