@@ -1,6 +1,7 @@
 #include "MS3DFile.h"
 #include "MS3DFileI.h"
 
+#include <GL/glew.h>
 #include <iostream>
 #include <vector>
 #include <list>

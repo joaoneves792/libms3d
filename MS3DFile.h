@@ -10,9 +10,9 @@
 #ifndef _MS3DFILE_H_
 #define _MS3DFILE_H_
 
-//#include <pshpack1.h>
+#include <GL/glew.h>
 
-#include <GL/glut.h> 
+//#include <pshpack1.h>
 
 #ifndef RC_INVOKED
 #pragma pack(push,1)

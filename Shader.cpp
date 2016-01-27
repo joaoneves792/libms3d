@@ -1,8 +1,7 @@
-#include <GL/glut.h>
+#include <GL/glew.h>
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <GLES3/gl3.h>
 
 #include "Shader.h"
 
@@ -42,7 +41,7 @@ void Shader::read_shader_src(const char *fname, std::vector<char> &buffer) {
         }
         else {
                 std::cerr << "Unable to open " << fname << " I'm out!" << std::endl;
-                exit(-1);
+                return;
         }
 }
 
@@ -66,7 +65,7 @@ GLuint Shader::load_and_compile_shader(const char *fname, GLenum shaderType) {
                 std::vector<char> compilation_log(512);
                 glGetShaderInfoLog(shader, compilation_log.size(), NULL, &compilation_log[0]);
                 std::cerr << &compilation_log[0] << std::endl;
-                exit(-1);
+                return 0;
         }
         return shader;
 }

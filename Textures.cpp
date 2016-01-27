@@ -6,12 +6,12 @@
  *  Created on: Jun 2, 2012
  */
 
+#include <GL/glew.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
 #include <string>
 #include <iostream>
-#include <GL/glut.h>
 #include <jpeglib.h>
 #include <png.h>
 

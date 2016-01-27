@@ -7,7 +7,7 @@
  */
 #ifndef TEXTURES_H_
 #define TEXTURES_H_
-#include <GL/glut.h>
+#include <GL/glew.h>
 
 typedef struct {
     int width;

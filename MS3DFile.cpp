@@ -5,6 +5,7 @@
  *  Created on: Jun 3, 2012
  */
 //#pragma warning(disable : 4786)
+#include <GL/glew.h>
 #include "MS3DFile.h"
 #include "MS3DFileI.h"
 #include <cstring>
@@ -12,7 +13,6 @@
 #include <vector>
 #include <iterator>
 #include <GL/glut.h>
-#include <GLES3/gl3.h>
 
 
 CMS3DFile::CMS3DFile()
