@@ -6,10 +6,13 @@
 class Shader{
 private:
 	GLuint _shaderProgram;
+	GLuint _vertexShader;
+	GLuint _fragmentShader;
 public:
 	Shader(const char* path_vert_shader, const char* path_frag_shader);
 	virtual ~Shader();
 
+	void use();
 	GLuint getShader();
 	void create_program(const char *path_vert_shader, const char *path_frag_shader);
 private:

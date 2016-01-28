@@ -73,23 +73,25 @@ GLuint Shader::load_and_compile_shader(const char *fname, GLenum shaderType) {
 // Create a program from two shaders
 void Shader::create_program(const char *path_vert_shader, const char *path_frag_shader) {
         // Load and compile the vertex and fragment shaders
-        GLuint vertexShader = load_and_compile_shader(path_vert_shader, GL_VERTEX_SHADER);
-        GLuint fragmentShader = load_and_compile_shader(path_frag_shader, GL_FRAGMENT_SHADER);
+        _vertexShader = load_and_compile_shader(path_vert_shader, GL_VERTEX_SHADER);
+        _fragmentShader = load_and_compile_shader(path_frag_shader, GL_FRAGMENT_SHADER);
 
         // Attach the above shader to a program
         GLuint shaderProgram = glCreateProgram();
-        glAttachShader(shaderProgram, vertexShader);
-        glAttachShader(shaderProgram, fragmentShader);
+        glAttachShader(shaderProgram, _vertexShader);
+        glAttachShader(shaderProgram, _fragmentShader);
 
         // Flag the shaders for deletion
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
+        glDeleteShader(_vertexShader);
+        glDeleteShader(_fragmentShader);
 
         // Link and use the program
         glLinkProgram(shaderProgram);
-        glUseProgram(shaderProgram);
 
         _shaderProgram = shaderProgram;
 	
 }
 
+void Shader::use(){
+        glUseProgram(_shaderProgram);
+}
