@@ -174,6 +174,9 @@ public:
 	void setOverrideSpecular(bool overrideSpecular);
 	void setOverrideEmissive(bool overrideEmissive);
 
+	void setMaterialEmissive(char* matName, float red, float green, float blue);
+	void setMaterialTransparency(char* matName, float alpha);
+
 	CMS3DFile(const CMS3DFile& rhs);
 	CMS3DFile& operator=(const CMS3DFile& rhs);
 

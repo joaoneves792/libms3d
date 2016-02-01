@@ -487,3 +487,25 @@ void CMS3DFile::createRectangle(float width, float height, GLuint texture){
 	_i->arrJoints.resize(0);
 }
 
+void CMS3DFile::setMaterialEmissive(char* matName, float red, float green, float blue){
+	int numMaterials = _i->arrMaterials.size();
+	ms3d_material_t* mat;
+	for(int i =0; i<numMaterials; i++){
+		mat = &_i->arrMaterials[i];
+		if(!strcmp(matName,mat->name)){
+			mat->emissive[0] = red;
+			mat->emissive[1] = green;
+			mat->emissive[2] = blue;
+		}
+	}
+}
+
+void CMS3DFile::setMaterialTransparency(char* matName, float alpha){
+	int numMaterials = _i->arrMaterials.size();
+	ms3d_material_t* mat;
+	for(int i =0; i<numMaterials; i++){
+		mat = &_i->arrMaterials[i];
+		if(!strcmp(matName,mat->name))
+			mat->transparency = alpha;
+	}
+}
