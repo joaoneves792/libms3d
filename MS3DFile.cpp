@@ -313,24 +313,25 @@ void CMS3DFile::prepareGroupOptimized(ms3d_group_t* group, GLuint vao){
 	int numTriangles = group->numtriangles;
 
 	int totalVertices = _i->arrVertices.size();
-	int indexes_table[totalVertices];
+	int *indexes_table = new int[totalVertices]; //We allocate all temporary arrays on the heap because they can potentially be quite big!
+	
 	for(int i=0;i<totalVertices;i++)
 		indexes_table[i] = -1;  // -1 means this vertex has not been used yet other value means its index
 
 
-	GLfloat vertices_position[numTriangles*3*4];
-	GLfloat vertices_normals[numTriangles*9];
-	GLfloat texture_coord[numTriangles*6];
+	GLfloat* vertices_position = new GLfloat[numTriangles*3*4];
+	GLfloat* vertices_normals = new GLfloat[numTriangles*9];
+	GLfloat* texture_coord = new GLfloat[numTriangles*6];
 
 	int numVertices = numTriangles*3;
-	GLuint indices[numVertices];
+	GLuint* indices = new GLuint[numVertices];
 
 	//Fill the arrays
 	int vertex_coordinate_index = 0;
 	int texture_coordinate_index = 0;
 	int normal_coordinate_index = 0;
-	int indices_index = 0;
-	int index = 0;
+	int indices_index = 0; //Current index in the indexes table
+	int index = 0; //Actual index of the vertex
 	for(int j=0; j<numTriangles; j++){
 		int triangleIndex = (int)group->triangleIndices[j];
 		ms3d_triangle_t* tri = &(_i->arrTriangles[triangleIndex]);
@@ -381,7 +382,7 @@ void CMS3DFile::prepareGroupOptimized(ms3d_group_t* group, GLuint vao){
 	GLuint eab;
 	glGenBuffers(1, &eab);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eab);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*numVertices , indices, GL_STATIC_DRAW);
 
 	//Position Attribute
 	GLint position_attribute = glGetAttribLocation(_shader, "position");
@@ -397,6 +398,14 @@ void CMS3DFile::prepareGroupOptimized(ms3d_group_t* group, GLuint vao){
 	GLint normals_attribute = glGetAttribLocation(_shader, "normal");
 	glVertexAttribPointer(normals_attribute, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(positionSize+textureCoordSize) );
 	glEnableVertexAttribArray(normals_attribute);
+
+
+	//Free all the temporary memory
+	delete[] indexes_table;
+	delete[] vertices_position;
+	delete[] vertices_normals;
+	delete[] texture_coord;
+	delete[] indices;
 }
 
 
