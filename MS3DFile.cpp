@@ -303,11 +303,105 @@ void CMS3DFile::prepareModel(GLuint shader){
 	glGenVertexArrays(_i->arrGroups.size(), _vao);
 
 	for(unsigned int i=0; i < _i->arrGroups.size(); i++){
-		prepareGroup(&(_i->arrGroups[i]), _vao[i]);
+		prepareGroupOptimized(&(_i->arrGroups[i]), _vao[i]);
 	}		
 
 }
+void CMS3DFile::prepareGroupOptimized(ms3d_group_t* group, GLuint vao){
+	glBindVertexArray(vao);
+		
+	int numTriangles = group->numtriangles;
 
+	int totalVertices = _i->arrVertices.size();
+	int indexes_table[totalVertices];
+	for(int i=0;i<totalVertices;i++)
+		indexes_table[i] = -1;  // -1 means this vertex has not been used yet other value means its index
+
+
+	GLfloat vertices_position[numTriangles*3*4];
+	GLfloat vertices_normals[numTriangles*9];
+	GLfloat texture_coord[numTriangles*6];
+
+	int numVertices = numTriangles*3;
+	GLuint indices[numVertices];
+
+	//Fill the arrays
+	int vertex_coordinate_index = 0;
+	int texture_coordinate_index = 0;
+	int normal_coordinate_index = 0;
+	int indices_index = 0;
+	int index = 0;
+	for(int j=0; j<numTriangles; j++){
+		int triangleIndex = (int)group->triangleIndices[j];
+		ms3d_triangle_t* tri = &(_i->arrTriangles[triangleIndex]);
+		for(int k = 0; k < 3; k++){
+			int existing_tex_coord_index = indexes_table[tri->vertexIndices[k]]*2;
+			if( indexes_table[tri->vertexIndices[k]] == -1 || 				//If we havent seen this vertex before
+					(tri->s[k] != texture_coord[existing_tex_coord_index] 		//Or if for some reason it has a different texture mapping
+					 || tri->t[k] != texture_coord[existing_tex_coord_index+1]) ){  //create a new vertex (I know, comparing floats..., but what else can I do?)
+				vertices_position[vertex_coordinate_index++] = _i->arrVertices[tri->vertexIndices[k]].vertex[0]; 
+				vertices_position[vertex_coordinate_index++] = _i->arrVertices[tri->vertexIndices[k]].vertex[1]; 
+				vertices_position[vertex_coordinate_index++] = _i->arrVertices[tri->vertexIndices[k]].vertex[2];
+				vertices_position[vertex_coordinate_index++] = 1.0;
+
+				vertices_normals[normal_coordinate_index++] = tri->vertexNormals[k][0];
+				vertices_normals[normal_coordinate_index++] = tri->vertexNormals[k][1];
+				vertices_normals[normal_coordinate_index++] = tri->vertexNormals[k][2];
+
+				texture_coord[texture_coordinate_index++] = tri->s[k];
+				texture_coord[texture_coordinate_index++] = tri->t[k];
+
+				indexes_table[tri->vertexIndices[k]] = index; // change from -1 to the index of this vertex
+				indices[indices_index++] = index;
+				index++;
+			}else{
+				indices[indices_index++] = indexes_table[tri->vertexIndices[k]];
+			}
+		}
+	}
+
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+
+	size_t positionSize = sizeof(GLfloat)*vertex_coordinate_index;
+	size_t normalsSize = sizeof(GLfloat)*normal_coordinate_index;
+	size_t textureCoordSize = sizeof(GLfloat)*texture_coordinate_index;
+
+	size_t totalSize = positionSize + normalsSize + textureCoordSize;
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, totalSize, NULL, GL_STATIC_DRAW);
+
+	/*Copy the data to the buffer*/
+	glBufferSubData(GL_ARRAY_BUFFER, 0, positionSize, vertices_position);
+	glBufferSubData(GL_ARRAY_BUFFER, positionSize, textureCoordSize, texture_coord);
+	glBufferSubData(GL_ARRAY_BUFFER, positionSize + textureCoordSize, normalsSize, vertices_normals);
+
+	//Set up the indices
+	GLuint eab;
+	glGenBuffers(1, &eab);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eab);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	//Position Attribute
+	GLint position_attribute = glGetAttribLocation(_shader, "position");
+	glVertexAttribPointer(position_attribute, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*4, 0);
+	glEnableVertexAttribArray(position_attribute);
+
+	//Texture coord attribute
+	GLint texture_coord_attribute = glGetAttribLocation(_shader, "texture_coord");
+	glVertexAttribPointer(texture_coord_attribute, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *)positionSize);
+	glEnableVertexAttribArray(texture_coord_attribute);
+
+	//Normals attribute
+	GLint normals_attribute = glGetAttribLocation(_shader, "normal");
+	glVertexAttribPointer(normals_attribute, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(positionSize+textureCoordSize) );
+	glEnableVertexAttribArray(normals_attribute);
+}
+
+
+//DEPRECATED
+//This is the dumb way of doing it, still if you have problems with bad normals try this
 void CMS3DFile::prepareGroup(ms3d_group_t* group, GLuint vao){
 	glBindVertexArray(vao);
 		

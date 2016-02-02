@@ -46,8 +46,8 @@ typedef struct
     word    flags;                                      // SELECTED | SELECTED2 | HIDDEN
     word    vertexIndices[3];                           //
     float   vertexNormals[3][3];                        //
-    float   s[3];                                       //
-    float   t[3];                                       //
+    GLfloat   s[3];                                       //
+    GLfloat   t[3];                                       //
     byte    smoothingGroup;                             // 1 - 32
     byte    groupIndex;                                 //
 } ms3d_triangle_t;
@@ -184,6 +184,7 @@ private:
 	void mergeGroups();
 	void removeUnusedMaterials();
 	void prepareGroup(ms3d_group_t* group, GLuint vao);
+	void prepareGroupOptimized(ms3d_group_t* group, GLuint vao);
 	void drawGroup(ms3d_group_t* group);
 };
 
