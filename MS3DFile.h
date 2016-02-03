@@ -184,7 +184,6 @@ private:
 	void mergeGroups();
 	void removeUnusedMaterials();
 	void prepareGroup(ms3d_group_t* group, GLuint vao);
-	void prepareGroupOptimized(ms3d_group_t* group, GLuint vao);
 	void drawGroup(ms3d_group_t* group);
 };
 
