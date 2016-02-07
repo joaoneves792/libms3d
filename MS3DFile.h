@@ -120,6 +120,8 @@ class CMS3DFile
 private:
 	CMS3DFileI *_i;
 	GLuint* _vao;
+	GLuint* _vbo;
+	GLuint* _eab;
 	GLuint _shader;
 	bool _overrideAmbient;
 	bool _overrideDiffuse;
@@ -142,6 +144,7 @@ public:
 	void optimize();
 
 	void prepareModel(GLuint shader);
+	void unloadModel();
 	void drawGL3();
 
 	int GetNumVertices();
@@ -183,7 +186,7 @@ public:
 private:
 	void mergeGroups();
 	void removeUnusedMaterials();
-	void prepareGroup(ms3d_group_t* group, GLuint vao);
+	void prepareGroup(ms3d_group_t* group, unsigned int groupIndex);
 	void drawGroup(ms3d_group_t* group);
 };
 

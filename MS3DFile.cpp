@@ -296,20 +296,30 @@ void CMS3DFile::drawGroup(ms3d_group_t* group){
 	}glEnd();
 }
 
+void CMS3DFile::unloadModel(){
+	GLsizei numOfGroups = _i->arrGroups.size();
+	glDeleteBuffers(numOfGroups, _eab);
+	glDeleteBuffers(numOfGroups, _vbo);
+	glDeleteVertexArrays(numOfGroups, _vao);
+}
+
 void CMS3DFile::prepareModel(GLuint shader){
 	_shader = shader;
 
+	//We have one vao and one vbo per group (is this the best approach?)
 	_vao = new GLuint [_i->arrGroups.size()];
+	_vbo = new GLuint [_i->arrGroups.size()];
+	_eab = new GLuint [_i->arrGroups.size()];
 
 	glGenVertexArrays(_i->arrGroups.size(), _vao);
 
 	for(unsigned int i=0; i < _i->arrGroups.size(); i++){
-		prepareGroup(&(_i->arrGroups[i]), _vao[i]);
+		prepareGroup(&(_i->arrGroups[i]), i);
 	}		
 
 }
-void CMS3DFile::prepareGroup(ms3d_group_t* group, GLuint vao){
-	glBindVertexArray(vao);
+void CMS3DFile::prepareGroup(ms3d_group_t* group, unsigned int groupIndex){
+	glBindVertexArray(_vao[groupIndex]);
 		
 	int numTriangles = group->numtriangles;
 
@@ -361,28 +371,13 @@ void CMS3DFile::prepareGroup(ms3d_group_t* group, GLuint vao){
 				indexes_table[tri->vertexIndices[k]] = index; // change from -1 to the index of this vertex
 				indices[indices_index++] = index;
 				index++;
-			/*}else if(tri->vertexNormals[k][0] != vertices_normals[existing_normal_index] ||
-					tri->vertexNormals[k][1] != vertices_normals[existing_normal_index+1] ||
-					tri->vertexNormals[k][2] != vertices_normals[existing_normal_index+2]){
-				GLfloat newNormal[3];
-		       		newNormal[0] = (tri->vertexNormals[k][0] + vertices_normals[existing_normal_index])/2;
-		       		newNormal[1] = (tri->vertexNormals[k][1] + vertices_normals[existing_normal_index+1])/2;
-		       		newNormal[2] = (tri->vertexNormals[k][2] + vertices_normals[existing_normal_index+2])/2;
-
-				GLfloat length = sqrt(newNormal[0]*newNormal[0] + newNormal[1]*newNormal[1] + newNormal[2]*newNormal[2]);
-				vertices_normals[existing_normal_index] = newNormal[0]/length;
-				vertices_normals[existing_normal_index+1] = newNormal[1]/length;
-				vertices_normals[existing_normal_index+2] = newNormal[2]/length;
-				
-				indices[indices_index++] = indexes_table[tri->vertexIndices[k]];*/
 			}else{
 				indices[indices_index++] = indexes_table[tri->vertexIndices[k]];
 			}
 		}
 	}
 
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
+	glGenBuffers(1, &_vbo[groupIndex]);
 
 	size_t positionSize = sizeof(GLfloat)*vertex_coordinate_index;
 	size_t normalsSize = sizeof(GLfloat)*normal_coordinate_index;
@@ -390,7 +385,7 @@ void CMS3DFile::prepareGroup(ms3d_group_t* group, GLuint vao){
 
 	size_t totalSize = positionSize + normalsSize + textureCoordSize;
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo[groupIndex]);
 	glBufferData(GL_ARRAY_BUFFER, totalSize, NULL, GL_STATIC_DRAW);
 
 	/*Copy the data to the buffer*/
@@ -399,9 +394,8 @@ void CMS3DFile::prepareGroup(ms3d_group_t* group, GLuint vao){
 	glBufferSubData(GL_ARRAY_BUFFER, positionSize + textureCoordSize, normalsSize, vertices_normals);
 
 	//Set up the indices
-	GLuint eab;
-	glGenBuffers(1, &eab);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eab);
+	glGenBuffers(1, &_eab[groupIndex]);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _eab[groupIndex]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)*numVertices , indices, GL_STATIC_DRAW);
 
 	//Position Attribute
