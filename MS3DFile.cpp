@@ -544,3 +544,12 @@ void CMS3DFile::setMaterialTransparency(char* matName, float alpha){
 			mat->transparency = alpha;
 	}
 }
+
+
+void CMS3DFile::translateModel(float x, float y, float z){
+	for(unsigned int i = 0; i<_i->arrVertices.size(); i++){
+		_i->arrVertices[i].vertex[0] += x;
+		_i->arrVertices[i].vertex[1] += y;
+		_i->arrVertices[i].vertex[2] += z;
+	}
+}
