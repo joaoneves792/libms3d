@@ -180,6 +180,8 @@ public:
 	void setMaterialEmissive(char* matName, float red, float green, float blue);
 	void setMaterialTransparency(char* matName, float alpha);
 
+	void translateModel(float x, float y, float z);
+
 	CMS3DFile(const CMS3DFile& rhs);
 	CMS3DFile& operator=(const CMS3DFile& rhs);
 
