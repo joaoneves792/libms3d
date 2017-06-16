@@ -1,0 +1,8 @@
+project (ms3d)
+cmake_minimum_required(VERSION 3.8)
+set( ms3d_SRCS MS3DFile.cpp optimizations.cpp Shader.cpp MS3DFileIO.cpp Textures.cpp)
+set( ms3d_PUBLIC_HEADERS MS3DFile.h Textures.h Shader.h)
+add_library (ms3d SHARED ${ms3d_SRCS})
+target_include_directories (ms3d PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+install(TARGETS ms3d LIBRARY DESTINATION "../lib")
+install(FILES ${ms3d_PUBLIC_HEADERS} DESTINATION "../include/ms3d")

@@ -19,6 +19,6 @@ install:
 	cp MS3DFile.h Textures.h Shader.h /usr/include/ms3d/
 
 clean:
-	rm $(OBJS)
-	rm libms3d.so.1.0.1
-	rm optimizer
+	-rm $(OBJS)
+	-rm libms3d.so.1.0.1
+	-rm optimizer
