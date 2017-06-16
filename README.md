@@ -9,8 +9,7 @@ C++ library to load and render .ms3d 3d models in OpenGL (both old and modern)
 shaders for modern OpenGL
 
 # Installation and Usage:
-
-Run "make" and "make install"
+Run "cmake ." "make" "make install"
 
 To use in your code:
 ```
